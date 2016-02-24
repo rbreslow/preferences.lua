@@ -15,6 +15,9 @@
    limitations under the License.
 ]]
 
+if SERVER then AddCSLuaFile('is.lua/is.lua') end
+include('is.lua/is.lua')
+
 if CLIENT then
     Preferences = {}
     Preferences.prototype = {}
@@ -31,7 +34,7 @@ if CLIENT then
         local instance = setmetatable({packageIdentifier = packageIdentifier, prefs = {}}, self)
 
         -- Make sure we take action on policy update
-        hook.Add("preferences.policyupdate", instance.packageIdentifier, function()
+        hook.Add('preferences.policyupdate', instance.packageIdentifier, function()
             if not Preferences.policies[instance.packageIdentifier] then return end
 
             for name, _ in pairs(Preferences.policies[instance.packageIdentifier]) do
@@ -277,7 +280,7 @@ if CLIENT then
         Preferences.policies = obj
 
         -- Alert
-        hook.Run("preferences.policyupdate")
+        hook.Run('preferences.policyupdate')
     end)
 end
 
