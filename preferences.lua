@@ -329,6 +329,8 @@ if SERVER then
     --- Update specific client's local policy store.
     -- @param client The client to update
     function Policy.prototype:UpdateClient(client)
+        IS.enforce_arg(1, 'UpdateClient', 'player', type(client))
+                  
         local obj = {}
         obj[self.packageIdentifier] = {}
 
