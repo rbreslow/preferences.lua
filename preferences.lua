@@ -169,14 +169,24 @@ if CLIENT then
         IS.enforce_arg(2, 'DefineTable', 'table', type(default))
         IS.enforce_arg(3, 'DefineTable', 'function', type(cb))
 
+        -- Function to test for validity
+        local function valid(value)
+            return util.JSONToTable(value)
+        end
+
         -- If the ConVar isn't a table we want to return to the previous value and void the callback
-        self.prefs[name] = {type = 'table', cvar = CreateClientConVar(self:_GetFullyQualified(name), util.TableToJSON(default), true, false), cb = cb, doCb = true}
+        self.prefs[name] = {type = 'table', cvar = CreateClientConVar(self:_GetFullyQualified(name), util.TableToJSON(default), true, false), cb = cb, doCb = true }
+
+        -- If the existing ConVar is corrupt we'll reset to default
+        if not valid(self.prefs[name].cvar:GetString()) then
+            self.prefs[name].cvar:SetString(util.TableToJSON(default))
+        end
 
         cvars.RemoveChangeCallback(self:_GetFullyQualified(name), 'a')
 
         -- If the ConVar isn't a table we want to return to the previous value and void the callback
         cvars.AddChangeCallback(self:_GetFullyQualified(name), function(_, oldValue, newValue)
-            if not util.JSONToTable(newValue) then
+            if not valid(newValue) then
                 self.prefs[name].doCb = false
                 self.prefs[name].cvar:SetString(oldValue)
             else
