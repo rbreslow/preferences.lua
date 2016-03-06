@@ -1,5 +1,5 @@
 # preferences.lua
-gLua library for easily defining preferences and enforcing preferences serverside
+GLua library for easily defining preferences and enforcing preferences serverside
 
 ```lua
 local preferences = Preferences('myaddon')
