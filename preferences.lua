@@ -25,28 +25,35 @@ if CLIENT then
 
     Preferences.policies = {}
 
-    --- Constructor for Preferences class.
-    -- @param packageIdentifier The identitifier for preferences defined within this class
-    function Preferences:New(packageIdentifier)
-        IS.enforce_arg(1, 'New', 'string', type(packageIdentifier))
+    setmetatable(Preferences, {
+        --- Constructor for Preferences class.
+        -- @param self Instance
+        -- @param packageIdentifier The identitifier for preferences defined within this class
+        __call = function(self, packageIdentifier)
+            IS.enforce_arg(1, '__call', 'table', type(self))
+            IS.enforce_arg(2, '__call', 'string', type(packageIdentifier))
 
-        -- Instantiate a Preferences
-        local instance = setmetatable({packageIdentifier = packageIdentifier, prefs = {}}, self)
+            -- Instantiate a Preferences
+            local instance = setmetatable({packageIdentifier = packageIdentifier, prefs = {}}, self)
 
-        -- Make sure we take action on policy update
-        hook.Add('preferences.policyupdate', instance.packageIdentifier, function()
-            if not Preferences.policies[instance.packageIdentifier] then return end
+            instance:_SetupHooks()
 
-            for name, _ in pairs(Preferences.policies[instance.packageIdentifier]) do
-                instance:_FireCallback(name)
-            end
-        end)
-
-        return instance
-    end
+            return instance
+        end
+    })
 
     --[[ PRIVATE: ]]
 
+    -- Make sure we take action on policy update
+    function Preferences.prototype:_SetupHooks()
+        hook.Add('preferences.policyupdate', self.packageIdentifier, function()
+            if not Preferences.policies[self.packageIdentifier] then return end
+
+            for name, _ in pairs(Preferences.policies[self.packageIdentifier]) do
+                self:_FireCallback(name)
+            end
+        end)
+    end
     function Preferences.prototype:_GetFullyQualified(name)
         IS.enforce_arg(1, '_GetFullyQualified', 'string', type(name))
 
