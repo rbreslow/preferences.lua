@@ -316,20 +316,29 @@ if SERVER then
     Policy.prototype = {}
     Policy.__index = Policy.prototype
 
-    --- Constructor for Policy class.
-    -- @param packageIdentifier The identitifier for preferences defined on the client
-    function Policy:New(packageIdentifier)
-        IS.enforce_arg(1, 'New', 'string', type(packageIdentifier))
+    setmetatable(Policy, {
+        --- Constructor for Policy class.
+        -- @param self Instance
+        -- @param packageIdentifier The identitifier for preferences defined on the client
+        __call = function(self, packageIdentifier)
+            IS.enforce_arg(1, '__call', 'table', type(self))
+            IS.enforce_arg(2, '__call', 'string', type(packageIdentifier))
 
-        -- Instantiate a Policy
-        local instance = setmetatable({packageIdentifier = packageIdentifier, policies = {}}, self)
+            -- Instantiate a Policy
+            local instance = setmetatable({packageIdentifier = packageIdentifier, policies = {}}, self)
 
+            instance:_SetupHooks()
+
+            return instance
+        end
+    })
+
+    --[[ PRIVATE: ]]
+    function Policy.prototype:_SetupHooks()
         -- Update new clients' local policy store.
-        hook.Add('PlayerInitialSpawn', 'preferences.playerinitialspawn', function(client)
-            instance:UpdateClient(client)
+        hook.Add('PlayerInitialSpawn', self.packageIdentifier, function(client)
+            self:UpdateClient(client)
         end)
-
-        return instance
     end
 
     --[[ PUBLIC: ]]
