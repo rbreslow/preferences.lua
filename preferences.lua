@@ -112,7 +112,9 @@ if CLIENT then
                 self.prefs[name].cvar:SetString(oldValue)
             else
                 if self.prefs[name].doCb then
-                    self.prefs[name].cb(self.prefs[name].cvar:GetBool())
+                    if not self:IsEnforced(name) then
+                        self.prefs[name].cb(self.prefs[name].cvar:GetBool())
+                    end
                 else
                     self.prefs[name].doCb = true
                 end
@@ -141,7 +143,9 @@ if CLIENT then
                 self.prefs[name].cvar:SetString(oldValue)
             else
                 if self.prefs[name].doCb then
-                    self.prefs[name].cb(self.prefs[name].cvar:GetFloat())
+                    if not self:IsEnforced(name) then
+                        self.prefs[name].cb(self.prefs[name].cvar:GetFloat())
+                    end
                 else
                     self.prefs[name].doCb = true
                 end
@@ -163,7 +167,9 @@ if CLIENT then
 
         cvars.RemoveChangeCallback(self:_GetFullyQualified(name), 'a')
         cvars.AddChangeCallback(self:_GetFullyQualified(name), function(_, oldValue, newValue)
-            self.prefs[name].cb(self.prefs[name].cvar:GetString())
+            if not self:IsEnforced(name) then
+                self.prefs[name].cb(self.prefs[name].cvar:GetString())
+            end
         end, 'a')
     end
 
@@ -198,7 +204,9 @@ if CLIENT then
                 self.prefs[name].cvar:SetString(oldValue)
             else
                 if self.prefs[name].doCb then
-                    self.prefs[name].cb(util.JSONToTable(self.prefs[name].cvar:GetString()))
+                    if not self:IsEnforced(name) then
+                        self.prefs[name].cb(util.JSONToTable(self.prefs[name].cvar:GetString()))
+                    end
                 else
                     self.prefs[name].doCb = true
                 end
