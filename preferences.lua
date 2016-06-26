@@ -288,14 +288,18 @@ if CLIENT then
         end
     end
 
-    --- Check if a preference is enforced by a policy.
-    -- @param name The name of the preference
-    function Preferences.prototype:IsEnforced(name)
-        if Preferences.policies[self.packageIdentifier] and Preferences.policies[self.packageIdentifier][name] then
-            return true
-        else
-            return false
+    --- Check if a preference or multiple preferences are enforced by a policy or policies.
+    -- @param ... The name of the preference. (varargs)
+    function Preferences.prototype:IsEnforced(...)
+        local tab = {... }
+
+        for i=1, #tab do
+            if not Preferences.policies[self.packageIdentifier] or not Preferences.policies[self.packageIdentifier][tab[i]] then
+                return false
+            end
         end
+
+        return true
     end
 
     net.Receive('preferences.enforcepolicy', function(_)
